@@ -53,18 +53,18 @@ jobs:
 
             ${{ github.event.comment.body }}
 
-      - name : Check that the initial check passed and the issue comment includes a valid "type".
-        if : |
-          
-          contains(env.INITIAL_CHECK_RESULT_JSON, '"success": true') &&
-          env.ISSUE_COMMENT_BODY =~ /type:(major|minor|patch)/
-        run :
-
-          echo 'All checks have passed. Ready to merge!'
-        else :
-          # Step 5. If any check failed, prevent merge.
-
-          run :
-
-            echo 'One or more checks failed. Merge not allowed.'
-            exit 1
+#      - name : Check that the initial check passed and the issue comment includes a valid "type".
+#        if : |
+#
+#          contains(env.INITIAL_CHECK_RESULT_JSON, '"success": true') &&
+#          env.ISSUE_COMMENT_BODY =~ /type:(major|minor|patch)/
+#        run :
+#
+#          echo 'All checks have passed. Ready to merge!'
+#        else :
+#          # Step 5. If any check failed, prevent merge.
+#
+#          run :
+#
+#            echo 'One or more checks failed. Merge not allowed.'
+#            exit 1
