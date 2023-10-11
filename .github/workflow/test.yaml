@@ -1,0 +1,70 @@
+name: PR checks
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 1. Run the initial check when PR is opened or synchronized.
+      - name: Initial check
+        id: initial-check
+        uses: your-action-repo/check-action@v1.0.0
+
+      # Step 2. Create an issue and get its number.
+      - name: Create issue for additional checks
+        id: create-issue
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title:
+            "hello"
+
+      # Step 3. Wait for comment on the created issue with major, minor or patch information.
+      - name : Wait for comment on the created issue.
+        uses : tiangolo/wait-for-github-action@master
+        with :
+          github-token : ${{ secrets.GITHUB_TOKEN }}
+          repository-name-with-owner : ${{ github.repository }}
+          event-name : 'issues'
+          event-type : 'created'
+          condition-typexw-and-value-JSON :
+
+            '{"type": "IssueCommentEvent", "value": {"issue":{"number":"${{ steps.create-issue.outputs.number }}", "body":"type:(major|minor|patch)"}}}'
+
+
+      # Step 4. Final check before allowing merge if all previous checks have passed.
+
+      - name : Final approval prior to merge
+        run :
+
+          echo 'Final approval required before merging is allowed'
+        env :
+
+          INITIAL_CHECK_RESULT_JSON :
+
+            ${{ steps.initial-check.outputs.result-json }}
+          ISSUE_COMMENT_BODY :
+
+            ${{ github.event.comment.body }}
+
+      - name : Check that the initial check passed and the issue comment includes a valid "type".
+        if : |
+          
+          contains(env.INITIAL_CHECK_RESULT_JSON, '"success": true') &&
+          env.ISSUE_COMMENT_BODY =~ /type:(major|minor|patch)/
+        run :
+
+          echo 'All checks have passed. Ready to merge!'
+        else :
+          # Step 5. If any check failed, prevent merge.
+
+          run :
+
+            echo 'One or more checks failed. Merge not allowed.'
+            exit 1
