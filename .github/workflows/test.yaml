@@ -39,15 +39,14 @@ jobs:
           echo "${bug_count}"
           if [[ $(($minor_count + $bug_count + $major_count)) == 1 ]]; then 
           
-           if [ "$minor_count" == "1" ]; then 
-             echo "::set-output name=label_type::minor"
-             echo "::debug::Label 'minor' found!"
-           elif [ "$bug_count" == "1" ]; then 
-             echo "::set-output name=label_type::bug"
-             echo "::debug::Label 'bug' found!"
-           elif [ "$major_count" == "1" ]; then 
+           if [ "$minor_count" == 1 ]; then 
+             echo "'minor' found!"
+           elif [ "$bug_count" == 1 ]; then 
+             echo "name=label_type::bug"
+             echo "Label 'bug' found!"
+           elif [ "$major_count" == 1 ]; then 
             echo "::set-output name=label_type::major"
-            echo "::debug::Label 'major' found!"
+            echo "Label 'major' found!"
            fi
           else 
             echo "Label field not found." 
