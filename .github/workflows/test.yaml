@@ -27,12 +27,12 @@ jobs:
           bug_count=0
           major_count=0
           
-          for label in $labels; do
-            case "$label" in
-              minor) ((minor_count++));;
-              bug) ((bug_count++));;
-              major) ((major_count++));;
-            esac
+          for label in $labels; do 
+            case "$label" in 
+              minor) minor_count=$((minor_count + 1));;
+              bug) bug_count=$((bug_count + 1));;
+              major) major_count=$((major_count + 1));;
+            esac 
           done
 
           # 遍历标签列表计数满足条件的数量       
