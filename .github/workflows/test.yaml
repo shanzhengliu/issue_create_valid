@@ -1,43 +1,38 @@
-name: Pull Request
-
+name: PR Label Check
 on:
   pull_request:
-    issues:
-      - created
+    types:
+      - opened
+      - synchronize
 
 jobs:
-  issue_check:
-    name: Check Issue
-    if: github.event_name == 'pull_request' && github.event.action == 'created'
+  pr_label_check:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check Issue Title
-        uses: actions/issues/check-title@v1
-        with:
-          title-pattern: '#[0-9]+'
-      - name: Create Issue Action
-        uses: actions/issues/create@v1
-        with:
-          api-endpoint: issues
-          title: 'Check PR #{{ github.event.issue.number }}'
-          body: |
-            ## Please enter the type of change  
-            ## Major (Breaking changes)  
-            ## Patch (Bug fixes and minor enhancements)  
-            ## Minor (New features and major enhancements)
-          labels: |
-            bug  
-            enhancement  
-            feature
-  merge_check:
-    name: Merge Check
-    if: github.event_name == 'issue' && github.event.issue.number == {{ github.event.pull_request.number }} && github.event.issue.action == 'created' && github.event.issue.label_added contains 'check/passed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Merge PR
-        uses: actions/merge@v1
-        with:
-          access-token: ${{ secrets.GITHUB_TOKEN }}
-          sha: ${{ inputs.base_sha }}
-          merge-method: squash
-          only-fetch-master-branch: true
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Check PR labels
+        run: |
+          # 获取提取请求信息和标签列表
+          pr_info=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                      --header "Accept: application/vnd.github.v3+json" \
+                      "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}")
+          labels=$(echo "${pr_info}" | jq -r '.labels[]?.name')
+          
+          # 检查标签中是否包含"field1"
+          if echo "${labels}" | grep -q 'field1'; then 
+            echo "Label field1 found!" 
+            # 这里可以添加其他需要执行的步骤
+          
+            # 示例：创建一个评论，表示找到了相应的标签
+            curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                 --header "Accept: application/vnd.github.v3+json" \
+                 --request POST \
+                 --data '{"body": "The label field1 is found in this PR."}' \
+                 "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+          
+          else 
+            echo "Label field1 not found." 
+          fi
