@@ -6,6 +6,7 @@ on:
       - synchronize
       - labeled
       - unlabeled
+      - reopened
 
 
 jobs:
@@ -16,40 +17,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Check PR labels
-        run: |
-          pr_info=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                      --header "Accept: application/vnd.github.v3+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}")
-          labels=$(echo "${pr_info}" | jq -r '.labels[].name')
-          
-          minor_count=0
-          bug_count=0
-          major_count=0
-          
-          for label in $labels; do 
-            case "$label" in 
-              minor) minor_count=$((minor_count + 1));;
-              bug) bug_count=$((bug_count + 1));;
-              major) major_count=$((major_count + 1));;
-            esac 
-          done
 
-          # 遍历标签列表计数满足条件的数量       
-          echo "${bug_count}"
-          if [[ $(($minor_count + $bug_count + $major_count)) == 1 ]]; then 
-          
-           if [ "$minor_count" == 1 ]; then 
-             echo "'minor' found!"
-           elif [ "$bug_count" == 1 ]; then 
-             echo "name=label_type::bug"
-             echo "Label 'bug' found!"
-           elif [ "$major_count" == 1 ]; then 
-            echo "::set-output name=label_type::major"
-            echo "Label 'major' found!"
-           fi
-          else 
-            echo "Label field not found." 
-            exit 1  # 终止 Workflow 并标记为失败
-          fi
-          
+      - name: Label checker for pull requests
+        uses: agilepathway/label-checker@v1.5.9
+        with:
+          one_of: major,minor,patch,bug
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
