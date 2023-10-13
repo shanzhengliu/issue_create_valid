@@ -4,6 +4,9 @@ on:
     types:
       - opened
       - synchronize
+      - labeled
+      - unlabeled
+
 
 jobs:
   pr_label_check:
