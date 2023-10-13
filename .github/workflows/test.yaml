@@ -28,13 +28,13 @@ jobs:
           major_count=0
 
           # 遍历标签列表计数满足条件的数量       
-          for label in $labels; do 
+          while IFS= read -d $'\0' label; do 
             case "$label" in 
               minor) ((minor_count++));;
               bug) ((bug_count++));;
               major) ((major_count++));;
             esac 
-          done
+          done <<< "$labels"
           echo "calculate done"
           if [[ $(($minor_count + $bug_count + $major_count)) == 1 ]]; then 
           
