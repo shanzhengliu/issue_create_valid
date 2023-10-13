@@ -27,4 +27,5 @@ jobs:
             # 这里可以添加其他需要执行的步骤
           else 
             echo "Label field1 not found." 
+            exit 1  # 终止 Workflow 并标记为失败
           fi
