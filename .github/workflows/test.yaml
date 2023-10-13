@@ -18,17 +18,39 @@ jobs:
 
       - name: Check PR labels
         run: |
-          # 获取提取请求信息和标签列表
           pr_info=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                       --header "Accept: application/vnd.github.v3+json" \
                       "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}")
+          
           labels=$(echo "${pr_info}" | jq -r '.labels[]?.name')
           
-          # 检查标签中是否包含"field1"
-          if echo "${labels}" | grep -q 'field1'; then 
-            echo "Label field1 found! congratulation" 
-            # 这里可以添加其他需要执行的步骤
-          else 
-            echo "Label field1 not found." 
-            exit 1  # 终止 Workflow 并标记为失败
-          fi
+          minor_count=0
+          bug_count=0
+          major_count=0
+
+          # 遍历标签列表计数满足条件的数量       
+          for label in $labels; do 
+            case "$label" in 
+              minor) ((minor_count++));;
+              bug) ((bug_count++));;
+              major) ((major_count++));;
+            esac 
+          done
+          
+         if [[ "$minor_count+bug_count+major_count == 1 ]]; then 
+        
+           if [ "$minor_count == 1 ]; then 
+             echo "::set-output name=label_type::minor"
+             echo "::debug::Label 'minor' found!"
+           elif [ "$bug_count == 1 ]; then 
+             echo "::set-output name=label_type::bug"
+             echo "::debug::Label 'bug' found!"
+           elif [ "$major_count == 1 ]; then 
+            echo "::set-output name=label_type::major"
+            echo "::debug::Label 'major' found!"
+           fi
+         else 
+          echo "Label field1 not found." 
+          exit 1  # 终止 Workflow 并标记为失败
+         fi
+          
