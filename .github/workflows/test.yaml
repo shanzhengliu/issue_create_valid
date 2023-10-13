@@ -37,20 +37,20 @@ jobs:
             esac 
           done
 
-          if [[ "$minor_count+bug_count+major_count == 1 ]]; then 
-        
-           if [ "$minor_count == 1 ]; then 
+          if [[ $(($minor_count + $bug_count + $major_count)) == 1 ]]; then 
+          
+           if [ "$minor_count" == "1" ]; then 
              echo "::set-output name=label_type::minor"
              echo "::debug::Label 'minor' found!"
-           elif [ "$bug_count == 1 ]; then 
+           elif [ "$bug_count" == "1" ]; then 
              echo "::set-output name=label_type::bug"
              echo "::debug::Label 'bug' found!"
-           elif [ "$major_count == 1 ]; then 
+           elif [ "$major_count" == "1" ]; then 
             echo "::set-output name=label_type::major"
             echo "::debug::Label 'major' found!"
            fi
-           else 
-            echo "Label field1 not found." 
+          else 
+            echo "Label field not found." 
             exit 1  # 终止 Workflow 并标记为失败
           fi
           
