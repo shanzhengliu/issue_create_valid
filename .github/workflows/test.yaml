@@ -35,7 +35,7 @@ jobs:
               major) ((major_count++));;
             esac 
           done <<< "$labels"
-          echo "calculate done"
+          echo "${bug_count}"
           if [[ $(($minor_count + $bug_count + $major_count)) == 1 ]]; then 
           
            if [ "$minor_count" == "1" ]; then 
