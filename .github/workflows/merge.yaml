@@ -1,0 +1,21 @@
+name: Get PR Label
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  get_label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get PR label
+        id: pr_label
+        run: echo "::set-output name=label::$(jq --raw-output .pull_request.labels[0].name $GITHUB_EVENT_PATH)"
+
+      - name: Print PR label
+        run: echo "PR label is ${{ steps.pr_label.outputs.label }}"
