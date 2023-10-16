@@ -13,9 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get PR label
-        id: pr_label
-        run: echo "::set-output name=label::$(jq --raw-output .pull_request.labels[0].name $GITHUB_EVENT_PATH)"
+      - name: Get Merged PR Number
+        id: pr_number
+        run: echo "::set-output name=number::$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)"
 
-      - name: Print PR label
+      - name: Get PR Label
+        id: pr_label
+        run: |
+          TOKEN=$GITHUB_TOKEN
+          NUMBER=${{ steps.pr_number.outputs.number }}
+          
+          LABELS=$(curl -sH "Authorization: token $TOKEN" \
+                        "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$NUMBER" | jq '.labels[].name')
+          
+          echo "::set-output name=label::${LABELS}"
+
+      - name: Print PR Label
         run: echo "PR label is ${{ steps.pr_label.outputs.label }}"
