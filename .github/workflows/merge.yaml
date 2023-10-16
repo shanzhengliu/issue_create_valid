@@ -23,7 +23,7 @@ jobs:
         id: pr_label
         run: |
           TOKEN=$GITHUB_TOKEN
-          NUMBER=${{ steps.pr_number.outputs.number }}
+          NUMBER=${{ steps.pr_number.outputs.pr_number }}
           
           LABELS=$(curl -sH "Authorization: token $TOKEN" \
                         "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$NUMBER" | jq '.labels[].name')
