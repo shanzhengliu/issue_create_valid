@@ -17,6 +17,7 @@ jobs:
         id: pr_number
         run: echo "::set-output name=number::$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)"
 
+
       - name: Get PR Label
         id: pr_label
         run: |
