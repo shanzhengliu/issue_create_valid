@@ -15,8 +15,9 @@ jobs:
 
       - name: Get Merged PR Number
         id: pr_number
-        run: echo "::set-output name=number::$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)"
-
+        run: |
+          pr_number=$(git log --grep="Merge pull request #[0-9]\+" --pretty=oneline -1 | sed -En "s/.*#([[:digit:]]+).*/\1/p")
+          echo "::set-output name=pr_number::$pr_number"
 
       - name: Get PR Label
         id: pr_label
